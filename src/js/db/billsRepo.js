@@ -170,7 +170,7 @@ export function ensureIndefiniteOccurrences() {
 }
 
 /**
- * Override amount for a single occurrence
+ * Override amount for a single occurrence (kept for backwards compat)
  */
 export function updateOccurrenceAmount(occurrenceId, newAmount) {
   return run(
@@ -178,6 +178,22 @@ export function updateOccurrenceAmount(occurrenceId, newAmount) {
      SET amount = ?, is_amount_overridden = 1 
      WHERE id = ?`,
     [parseFloat(newAmount), occurrenceId]
+  );
+}
+
+/**
+ * Override both amount and due_date for a single occurrence only.
+ * This NEVER touches other occurrences in the series.
+ * @param {number} occurrenceId
+ * @param {number} newAmount
+ * @param {string} newDueDate  YYYY-MM-DD
+ */
+export function updateOccurrence(occurrenceId, newAmount, newDueDate) {
+  return run(
+    `UPDATE bill_occurrences 
+     SET amount = ?, due_date = ?, is_amount_overridden = 1
+     WHERE id = ?`,
+    [parseFloat(newAmount), newDueDate, occurrenceId]
   );
 }
 
@@ -198,27 +214,68 @@ export function setPaid(occurrenceId, isPaid) {
 /**
  * Update a bill template
  * Updates template fields. If default_amount changed, updates future unpaid, non-overridden occurrences.
+ * If due_day changed, reschedules all future unpaid occurrences to the new day (next month onwards).
  */
 export function updateBill(bill) {
   const oldBill = selectOne(`SELECT * FROM bills WHERE id = ?`, [bill.id]);
   const defaultAmount = parseFloat(bill.default_amount);
+  const newDueDay = parseInt(bill.due_day, 10);
 
   run(
     `UPDATE bills 
      SET name = ?, category = ?, default_amount = ?, due_day = ?, recurrence_months = ?
      WHERE id = ?`,
-    [bill.name, bill.category, defaultAmount, parseInt(bill.due_day, 10), bill.recurrence_months ? parseInt(bill.recurrence_months, 10) : 0, bill.id]
+    [bill.name, bill.category, defaultAmount, newDueDay, bill.recurrence_months ? parseInt(bill.recurrence_months, 10) : 0, bill.id]
   );
 
-  // Default behavior rule: update default amount on future unpaid, non-overridden occurrences
+  // Compute the first day of next month — used as the cutoff for all cascades below.
+  // We never touch the CURRENT month's occurrence from the template editor; those should
+  // be edited individually via the inline amount editor on the Bill Detail screen.
+  const now = new Date();
+  const nextMonthYear = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
+  const nextMonthNum = now.getMonth() === 11 ? 1 : now.getMonth() + 2; // 1-based next month
+  const nextMonthStr = `${nextMonthYear}-${String(nextMonthNum).padStart(2, '0')}-01`;
+
+  // 1) If default_amount changed: propagate to future unpaid non-overridden occurrences
   if (oldBill && oldBill.default_amount !== defaultAmount) {
-    const todayStr = formatDateISO(new Date());
     run(
       `UPDATE bill_occurrences 
        SET amount = ? 
        WHERE bill_id = ? AND is_paid = 0 AND is_amount_overridden = 0 AND due_date >= ?`,
-      [defaultAmount, bill.id, todayStr]
+      [defaultAmount, bill.id, nextMonthStr]
     );
+  }
+
+  // 2) If due_day changed: reschedule future unpaid occurrences to the new day.
+  //    We update each occurrence's due_date in-place. If the computed new date already has
+  //    another occurrence (e.g. a leftover from a previous edit), we delete the stale one
+  //    instead to avoid duplicates.
+  if (oldBill && oldBill.due_day !== newDueDay) {
+    const futureOccs = select(
+      `SELECT id, due_date FROM bill_occurrences
+       WHERE bill_id = ? AND is_paid = 0 AND due_date >= ?`,
+      [bill.id, nextMonthStr]
+    );
+
+    for (const occ of futureOccs) {
+      const [y, m] = occ.due_date.split('-').map(Number);
+      const newDueDate = buildClampedDueDate(y, m, newDueDay);
+
+      if (newDueDate === occ.due_date) continue; // nothing changed for this row
+
+      // Check for a conflicting occurrence already at the new date
+      const conflict = selectOne(
+        `SELECT id FROM bill_occurrences WHERE bill_id = ? AND due_date = ? AND id != ?`,
+        [bill.id, newDueDate, occ.id]
+      );
+
+      if (conflict) {
+        // A row already exists at the target date — delete the stale duplicate
+        run(`DELETE FROM bill_occurrences WHERE id = ?`, [occ.id]);
+      } else {
+        run(`UPDATE bill_occurrences SET due_date = ? WHERE id = ?`, [newDueDate, occ.id]);
+      }
+    }
   }
 }
 

@@ -19,6 +19,12 @@ export async function renderHomeScreen(container, params = {}) {
   const totalOverdue = occurrences.filter(o => o.is_overdue).reduce((sum, o) => sum + o.amount, 0);
   const overdueCount = occurrences.filter(o => o.is_overdue).length;
 
+  // Build category filter options for the inline custom dropdown
+  const catFilterOptions = [
+    { value: 'all', label: 'All Categories' },
+    ...CATEGORIES.map(c => ({ value: c.id, label: c.name }))
+  ];
+
   container.innerHTML = `
     <!-- Confirmation Modal -->
     <div id="confirm-modal" class="fixed inset-0 z-50 flex items-end justify-center hidden" style="background: rgba(0,0,0,0.65);">
@@ -55,24 +61,42 @@ export async function renderHomeScreen(container, params = {}) {
         </button>
       </div>
 
-      <!-- Hero Summary Card (SAMPLE_UI style) -->
-      <div class="rounded-3xl p-5 bg-surface ${totalOverdue > 0 ? 'border border-accent-red/40' : 'border border-accent-purple/30'} relative overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-label text-text-secondary uppercase tracking-wider font-semibold">Total Unpaid Balance</span>
-          ${overdueCount > 0 ? `<span class="px-2 py-0.5 rounded-full bg-accent-red text-text-primary text-tag uppercase font-bold animate-pulse">${overdueCount} Overdue</span>` : ''}
-        </div>
-        <div class="text-hero-amount text-text-primary mb-3">${formatCurrency(totalUnpaid)}</div>
-        <div class="flex items-center space-x-4 text-caption text-text-secondary border-t border-surface-alt/40 pt-3">
-          <div class="flex items-center space-x-1.5">
-            <div class="w-2 h-2 rounded-full ${totalOverdue > 0 ? 'bg-accent-red' : 'bg-accent-purple'}"></div>
-            <span>${occurrences.filter(o => !o.is_paid).length} Bills Pending</span>
-          </div>
-          ${totalOverdue > 0 ? `
-            <div class="flex items-center space-x-1.5 text-accent-red">
-              <div class="w-2 h-2 rounded-full bg-accent-red"></div>
-              <span>${formatCurrency(totalOverdue)} Overdue</span>
+      <!-- Hero Summary Card -->
+      <div class="rounded-3xl relative overflow-hidden" style="background-color: #14532d; border: 1px solid #166534;">
+        <!-- Dot pattern texture -->
+        <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.18;">
+          <defs>
+            <pattern id="dots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.2" fill="#4ade80"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dots)"/>
+        </svg>
+        <!-- Decorative circle accent (top-right) -->
+        <div class="absolute -top-6 -right-6 w-28 h-28 rounded-full" style="border: 2px solid rgba(74,222,128,0.22); pointer-events:none;"></div>
+        <div class="absolute -top-2 -right-2 w-14 h-14 rounded-full" style="border: 2px solid rgba(74,222,128,0.14); pointer-events:none;"></div>
+        <!-- Content -->
+        <div class="relative z-10 p-5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+              <svg class="w-3.5 h-3.5" style="color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="text-label uppercase tracking-wider font-semibold" style="color: rgba(187,247,208,0.8);">Total Unpaid Balance</span>
             </div>
-          ` : ''}
+            ${overdueCount > 0 ? `<span class="px-2 py-0.5 rounded-full text-text-primary text-tag uppercase font-bold" style="background:#E5484D;">${overdueCount} Overdue</span>` : ''}
+          </div>
+          <div class="text-hero-amount text-text-primary mb-4" style="font-size:32px; line-height:1.1;">${formatCurrency(totalUnpaid)}</div>
+          <div class="flex items-center space-x-4 text-caption pt-3" style="border-top: 1px solid rgba(74,222,128,0.2);">
+            <div class="flex items-center space-x-1.5" style="color: rgba(187,247,208,0.75);">
+              <div class="w-2 h-2 rounded-full" style="background-color: ${totalOverdue > 0 ? '#E5484D' : '#4ade80'};"></div>
+              <span>${occurrences.filter(o => !o.is_paid).length} Bills Pending</span>
+            </div>
+            ${totalOverdue > 0 ? `
+              <div class="flex items-center space-x-1.5" style="color: #fca5a5;">
+                <div class="w-2 h-2 rounded-full" style="background-color:#E5484D;"></div>
+                <span>${formatCurrency(totalOverdue)} Overdue</span>
+              </div>
+            ` : ''}
+          </div>
         </div>
       </div>
 
@@ -86,13 +110,44 @@ export async function renderHomeScreen(container, params = {}) {
           ${renderFilterChip('paid', 'Paid', activeStatusFilter)}
         </div>
 
-        <!-- Category Dropdown Filter -->
-        <div class="flex items-center justify-between">
-          <span class="text-section-header text-text-primary font-semibold">Upcoming Bills</span>
-          <select id="home-category-filter" class="bg-surface-alt text-text-secondary text-label rounded-lg px-2.5 py-1 border-none focus:ring-1 focus:ring-accent-purple outline-none cursor-pointer">
-            <option value="all" ${activeCategoryFilter === 'all' ? 'selected' : ''}>All Categories</option>
-            ${CATEGORIES.map(c => `<option value="${c.id}" ${activeCategoryFilter === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-          </select>
+        <!-- Category Dropdown Filter (custom) -->
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-section-header text-text-primary font-semibold shrink-0">Upcoming Bills</span>
+          <!-- compact variant: smaller trigger, right-aligned panel -->
+          <div class="relative w-40" id="home-category-filter-wrapper">
+            <input type="hidden" id="home-category-filter" value="${activeCategoryFilter}" />
+            <button
+              type="button"
+              id="home-category-filter-trigger"
+              class="w-full flex items-center justify-between pl-3 pr-2.5 py-1.5 bg-surface-alt border border-surface-alt/60 rounded-xl text-label text-text-primary font-medium cursor-pointer transition-all hover:border-accent-purple/40 focus:outline-none focus:border-accent-purple"
+              aria-haspopup="listbox" aria-expanded="false"
+            >
+              <span id="home-category-filter-label">${catFilterOptions.find(o => o.value === activeCategoryFilter)?.label || 'All Categories'}</span>
+              <svg id="home-category-filter-chevron" class="w-3.5 h-3.5 ml-1 text-text-secondary shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div
+              id="home-category-filter-panel"
+              class="absolute z-40 right-0 left-auto mt-2 w-44 bg-surface border border-surface-alt/60 rounded-2xl shadow-2xl overflow-hidden origin-top-right"
+              style="display:none; opacity:0; transform:scaleY(0.95); transition: opacity 0.15s ease, transform 0.15s ease;"
+              role="listbox"
+            >
+              <div class="p-1.5 space-y-0.5 max-h-56 overflow-y-auto">
+                ${catFilterOptions.map(opt => `
+                  <button
+                    type="button"
+                    data-select-option="home-category-filter"
+                    data-value="${opt.value}"
+                    class="custom-select-option w-full flex items-center justify-between px-4 py-2.5 text-body text-left transition-colors duration-100 hover:bg-surface-alt/80 rounded-xl ${opt.value === activeCategoryFilter ? 'text-accent-purple font-semibold' : 'text-text-primary font-normal'}"
+                  >
+                    <span>${opt.label}</span>
+                    <span class="text-accent-purple ${opt.value === activeCategoryFilter ? '' : 'invisible'}">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -116,11 +171,8 @@ export async function renderHomeScreen(container, params = {}) {
   // Attach Event Handlers
   document.getElementById('home-add-btn')?.addEventListener('click', () => navigate('add-bill'));
 
-  // Category filter select handler
-  document.getElementById('home-category-filter')?.addEventListener('change', (e) => {
-    activeCategoryFilter = e.target.value;
-    renderHomeScreen(container);
-  });
+  // Init the compact home category filter custom dropdown
+  initHomeCategoryFilter(container);
 
   // Status filter click handlers
   container.querySelectorAll('[data-status-filter]').forEach(chip => {
@@ -156,6 +208,64 @@ export async function renderHomeScreen(container, params = {}) {
         },
       });
     });
+  });
+}
+
+function initHomeCategoryFilter(container) {
+  const wrapper = document.getElementById('home-category-filter-wrapper');
+  const trigger = document.getElementById('home-category-filter-trigger');
+  const panel   = document.getElementById('home-category-filter-panel');
+  const label   = document.getElementById('home-category-filter-label');
+  const input   = document.getElementById('home-category-filter');
+  const chevron = document.getElementById('home-category-filter-chevron');
+  if (!trigger || !panel) return;
+
+  let isOpen = false;
+
+  function open() {
+    isOpen = true;
+    panel.style.display = 'block';
+    requestAnimationFrame(() => {
+      panel.style.opacity = '1';
+      panel.style.transform = 'scaleY(1)';
+    });
+    chevron.style.transform = 'rotate(180deg)';
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+
+  function close() {
+    isOpen = false;
+    panel.style.opacity = '0';
+    panel.style.transform = 'scaleY(0.95)';
+    chevron.style.transform = 'rotate(0deg)';
+    trigger.setAttribute('aria-expanded', 'false');
+    setTimeout(() => { if (!isOpen) panel.style.display = 'none'; }, 150);
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isOpen ? close() : open();
+  });
+
+  panel.querySelectorAll('[data-select-option]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const val = btn.getAttribute('data-value');
+      const lbl = btn.querySelector('span:first-child').textContent;
+      input.value = val;
+      label.textContent = lbl;
+      close();
+      activeCategoryFilter = val;
+      renderHomeScreen(container);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (isOpen && wrapper && !wrapper.contains(e.target)) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) close();
   });
 }
 

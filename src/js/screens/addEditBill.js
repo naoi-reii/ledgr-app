@@ -1,6 +1,7 @@
 import { createBill, getBillById, updateBill } from '../db/billsRepo.js';
 import { CATEGORIES } from '../constants.js';
 import { navigate } from '../router.js';
+import { createCustomSelect } from '../components/customSelect.js';
 
 /**
  * Render Add or Edit Bill screen
@@ -16,6 +17,29 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
   }
 
   const todayStr = new Date().toISOString().split('T')[0];
+
+  // Build custom select configs
+  const categorySelect = createCustomSelect({
+    id: 'field-category',
+    options: CATEGORIES.map(c => ({ value: c.id, label: c.name })),
+    value: bill?.category || CATEGORIES[0]?.id,
+  });
+
+  const recurrenceOptions = [
+    { value: '0',      label: 'Ongoing / Indefinite (Every Month)' },
+    { value: '1',      label: 'One-time Bill' },
+    { value: 'custom', label: 'Fixed Number of Months' },
+  ];
+  let initialRecurrence = '0';
+  if (bill) {
+    if (bill.recurrence_months === 1) initialRecurrence = '1';
+    else if (bill.recurrence_months > 1) initialRecurrence = 'custom';
+  }
+  const recurrenceSelect = createCustomSelect({
+    id: 'field-recurrence-type',
+    options: recurrenceOptions,
+    value: initialRecurrence,
+  });
 
   container.innerHTML = `
     <div class="space-y-6 animate-fade-in pb-8">
@@ -45,18 +69,10 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
           />
         </div>
 
-        <!-- Category Dropdown -->
+        <!-- Category Dropdown (custom) -->
         <div class="space-y-1.5">
           <label class="block text-label text-text-secondary font-medium">Category</label>
-          <select 
-            id="field-category" 
-            required 
-            class="w-full bg-surface text-text-primary text-body rounded-2xl px-4 py-3.5 border border-surface-alt/40 focus:border-accent-purple focus:ring-1 focus:ring-accent-purple outline-none transition-all cursor-pointer"
-          >
-            ${CATEGORIES.map(c => `
-              <option value="${c.id}" ${bill && bill.category === c.id ? 'selected' : ''}>${c.name}</option>
-            `).join('')}
-          </select>
+          ${categorySelect.html}
         </div>
 
         <!-- Amount -->
@@ -102,17 +118,10 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
           `}
         </div>
 
-        <!-- Recurrence Selection -->
+        <!-- Recurrence Selection (custom) -->
         <div class="space-y-1.5">
           <label class="block text-label text-text-secondary font-medium">Recurrence</label>
-          <select 
-            id="field-recurrence-type" 
-            class="w-full bg-surface text-text-primary text-body rounded-2xl px-4 py-3.5 border border-surface-alt/40 focus:border-accent-purple focus:ring-1 focus:ring-accent-purple outline-none transition-all cursor-pointer"
-          >
-            <option value="0" ${!bill || bill.recurrence_months === 0 || bill.recurrence_months === null ? 'selected' : ''}>Ongoing / Indefinite (Every Month)</option>
-            <option value="1" ${bill && bill.recurrence_months === 1 ? 'selected' : ''}>One-time Bill</option>
-            <option value="custom" ${bill && bill.recurrence_months > 1 ? 'selected' : ''}>Fixed Number of Months</option>
-          </select>
+          ${recurrenceSelect.html}
         </div>
 
         <!-- Custom Months Input (conditional) -->
@@ -145,20 +154,21 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
     </div>
   `;
 
-  // Cancel Handler
-  document.getElementById('bill-form-cancel')?.addEventListener('click', () => {
-    navigate('home');
-  });
+  // Init custom selects
+  categorySelect.init();
 
-  // Recurrence dropdown handler
-  const recurrenceSelect = document.getElementById('field-recurrence-type');
   const customMonthsContainer = document.getElementById('custom-months-container');
-  recurrenceSelect?.addEventListener('change', (e) => {
-    if (e.target.value === 'custom') {
+  recurrenceSelect.init((val) => {
+    if (val === 'custom') {
       customMonthsContainer?.classList.remove('hidden');
     } else {
       customMonthsContainer?.classList.add('hidden');
     }
+  });
+
+  // Cancel Handler
+  document.getElementById('bill-form-cancel')?.addEventListener('click', () => {
+    navigate('home');
   });
 
   // Form Submit Handler
@@ -169,7 +179,7 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
     const category = document.getElementById('field-category').value;
     const defaultAmount = parseFloat(document.getElementById('field-amount').value);
 
-    const recType = recurrenceSelect.value;
+    const recType = document.getElementById('field-recurrence-type').value;
     let recurrenceMonths = 0;
     if (recType === '1') recurrenceMonths = 1;
     else if (recType === 'custom') {
