@@ -4,7 +4,7 @@
 
 @layer base {
   html, body {
-    @apply bg-base text-text-primary font-sans antialiased min-h-screen select-none;
+    @apply bg-base text-text-primary font-sans antialiased h-screen overflow-hidden select-none;
     background-color: #121212;
     color: #FFFFFF;
     -webkit-tap-highlight-color: transparent;
@@ -37,7 +37,8 @@
 /* Mobile shell frame container for desktop viewing */
 .mobile-shell-frame {
   max-width: 440px;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   margin: 0 auto;
   position: relative;
   background-color: #121212;

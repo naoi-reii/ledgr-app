@@ -44,65 +44,65 @@ export async function renderBillDetailScreen(container, params = {}) {
       </div>
 
       <!-- Main Feature Card -->
-      <div class="rounded-3xl bg-surface p-6 border border-surface-alt/40 space-y-6 relative overflow-hidden">
-        <div class="flex items-center justify-between">
+      <div class="rounded-3xl bg-surface p-5 sm:p-6 border border-surface-alt/40 space-y-6 relative overflow-hidden">
+        <div class="flex items-start justify-between gap-3">
           <!-- Category Chip -->
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background-color: ${cat.bgColor}; color: ${cat.color};">
+          <div class="flex items-center space-x-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
               ${getCategoryIconSvg(cat.icon, "w-6 h-6")}
             </div>
-            <div>
-              <span class="text-caption text-text-secondary uppercase tracking-wider font-semibold">${cat.name}</span>
-              <h2 class="text-section-header font-bold text-text-primary">${occurrence.name}</h2>
+            <div class="min-w-0">
+              <span class="text-caption text-text-secondary uppercase tracking-wider font-semibold block truncate">${cat.name}</span>
+              <h2 class="text-section-header font-bold text-text-primary truncate">${occurrence.name}</h2>
             </div>
           </div>
 
           <!-- Status Tag -->
           ${isPaid ? `
-            <span class="px-3 py-1 rounded-full bg-accent-purple/20 text-accent-purple border border-accent-purple/40 text-tag uppercase font-bold">Paid</span>
+            <span class="shrink-0 px-3 py-1 rounded-full bg-accent-purple/20 text-accent-purple border border-accent-purple/40 text-tag uppercase font-bold mt-1">Paid</span>
           ` : isOverdue ? `
-            <span class="px-3 py-1 rounded-full bg-accent-red/20 text-accent-red border border-accent-red/40 text-tag uppercase font-bold">Overdue</span>
+            <span class="shrink-0 px-3 py-1 rounded-full bg-accent-red/20 text-accent-red border border-accent-red/40 text-tag uppercase font-bold mt-1">Overdue</span>
           ` : `
-            <span class="px-3 py-1 rounded-full bg-surface-alt text-text-secondary text-tag uppercase font-semibold">Unpaid</span>
+            <span class="shrink-0 px-3 py-1 rounded-full bg-surface-alt text-text-secondary text-tag uppercase font-semibold mt-1">Unpaid</span>
           `}
         </div>
 
         <!-- Amount Display -->
         <div class="space-y-1 bg-base/60 rounded-2xl p-4 border border-surface-alt/30">
-          <div class="flex items-center justify-between">
-            <span class="text-caption text-text-secondary">Amount</span>
-            ${occurrence.is_amount_overridden ? `<span class="px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag">Edited</span>` : ''}
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-caption text-text-secondary shrink-0">Amount</span>
+            ${occurrence.is_amount_overridden ? `<span class="shrink-0 px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag">Edited</span>` : ''}
           </div>
-          <div class="flex items-center space-x-1 pt-1">
-            <span class="text-hero-amount text-text-primary font-extrabold">₱</span>
-            <span class="text-hero-amount font-extrabold text-text-primary">${occurrence.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+          <div class="flex items-center space-x-1 pt-1 min-w-0 overflow-hidden">
+            <span class="text-hero-amount text-text-primary font-extrabold shrink-0">₱</span>
+            <span class="text-hero-amount font-extrabold text-text-primary truncate">${occurrence.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
           <p class="text-caption text-text-secondary/70">Tap ✏️ above to edit this month only.</p>
         </div>
 
         <!-- Metadata Breakdown List -->
         <div class="space-y-3 pt-2">
-          <div class="flex justify-between items-center text-body py-1 border-b border-surface-alt/30">
-            <span class="text-text-secondary text-caption">Due Date</span>
-            <span class="font-semibold text-text-primary">${formatDateReadable(occurrence.due_date)}</span>
+          <div class="flex justify-between items-center gap-4 text-body py-1 border-b border-surface-alt/30">
+            <span class="text-text-secondary text-caption shrink-0">Due Date</span>
+            <span class="font-semibold text-text-primary text-right">${formatDateReadable(occurrence.due_date)}</span>
           </div>
 
-          <div class="flex justify-between items-center text-body py-1 border-b border-surface-alt/30">
-            <span class="text-text-secondary text-caption">Recurrence Rule</span>
-            <span class="font-semibold text-text-primary">
+          <div class="flex justify-between items-center gap-4 text-body py-1 border-b border-surface-alt/30">
+            <span class="text-text-secondary text-caption shrink-0">Recurrence Rule</span>
+            <span class="font-semibold text-text-primary text-right line-clamp-2">
               ${occurrence.recurrence_months === 1 ? 'One-time' : occurrence.recurrence_months > 1 ? `Fixed (${occurrence.recurrence_months} months)` : 'Ongoing Monthly'}
             </span>
           </div>
 
-          <div class="flex justify-between items-center text-body py-1 border-b border-surface-alt/30">
-            <span class="text-text-secondary text-caption">Default Template Amount</span>
-            <span class="font-semibold text-text-primary">${formatCurrency(occurrence.default_amount)}</span>
+          <div class="flex justify-between items-center gap-4 text-body py-1 border-b border-surface-alt/30">
+            <span class="text-text-secondary text-caption shrink-0">Default Template</span>
+            <span class="font-semibold text-text-primary text-right">${formatCurrency(occurrence.default_amount)}</span>
           </div>
 
           ${occurrence.paid_at ? `
-            <div class="flex justify-between items-center text-body py-1">
-              <span class="text-text-secondary text-caption">Paid On</span>
-              <span class="font-semibold text-accent-purple">${formatDateReadable(occurrence.paid_at.split('T')[0])}</span>
+            <div class="flex justify-between items-center gap-4 text-body py-1">
+              <span class="text-text-secondary text-caption shrink-0">Paid On</span>
+              <span class="font-semibold text-accent-purple text-right">${formatDateReadable(occurrence.paid_at.split('T')[0])}</span>
             </div>
           ` : ''}
         </div>
