@@ -62,38 +62,29 @@ export async function renderHomeScreen(container, params = {}) {
       </div>
 
       <!-- Hero Summary Card -->
-      <div class="rounded-3xl relative overflow-hidden" style="background-color: #14532d; border: 1px solid #166534;">
-        <!-- Dot pattern texture -->
-        <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.18;">
-          <defs>
-            <pattern id="dots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.2" fill="#4ade80"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dots)"/>
-        </svg>
-        <!-- Decorative circle accent (top-right) -->
-        <div class="absolute -top-6 -right-6 w-28 h-28 rounded-full" style="border: 2px solid rgba(74,222,128,0.22); pointer-events:none;"></div>
-        <div class="absolute -top-2 -right-2 w-14 h-14 rounded-full" style="border: 2px solid rgba(74,222,128,0.14); pointer-events:none;"></div>
+      <div class="rounded-3xl relative overflow-hidden" style="background-color: #15803d; border: 1px solid #16a34a ;">
+        <!-- Large decorative background circle overlay (inspired by reference UI design) -->
+        <div class="absolute -right-12 -top-6 w-56 h-56 rounded-full" style="background: rgba(74, 222, 128, 0.08); pointer-events: none;"></div>
+        <div class="absolute -right-4 -top-2 w-40 h-40 rounded-full" style="background: rgba(74, 222, 128, 0.05); pointer-events: none;"></div>
         <!-- Content -->
         <div class="relative z-10 p-5">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center space-x-2">
-              <svg class="w-3.5 h-3.5" style="color:#4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <span class="text-label uppercase tracking-wider font-semibold" style="color: rgba(187,247,208,0.8);">Total Unpaid Balance</span>
+              <svg class="w-3.5 h-3.5" style="color:white ;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="text-label uppercase tracking-wider font-semibold" style="color: white;">Total Unpaid Balance</span>
             </div>
-            ${overdueCount > 0 ? `<span class="px-2 py-0.5 rounded-full text-text-primary text-tag uppercase font-bold" style="background:#E5484D;">${overdueCount} Overdue</span>` : ''}
+            ${overdueCount > 0 ? `<span class="px-2.5 py-0.5 rounded-full text-tag uppercase font-bold" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);">${overdueCount} Overdue</span>` : ''}
           </div>
           <div class="text-hero-amount text-text-primary mb-4" style="font-size:32px; line-height:1.1;">${formatCurrency(totalUnpaid)}</div>
           <div class="flex items-center space-x-4 text-caption pt-3" style="border-top: 1px solid rgba(74,222,128,0.2);">
-            <div class="flex items-center space-x-1.5" style="color: rgba(187,247,208,0.75);">
-              <div class="w-2 h-2 rounded-full" style="background-color: ${totalOverdue > 0 ? '#E5484D' : '#4ade80'};"></div>
+            <div class="flex items-center space-x-1.5" style="color: white;">
+              <div class="w-2 h-2 rounded-full" style="background-color: white ;"></div>
               <span>${occurrences.filter(o => !o.is_paid).length} Bills Pending</span>
             </div>
             ${totalOverdue > 0 ? `
               <div class="flex items-center space-x-1.5" style="color: #fca5a5;">
-                <div class="w-2 h-2 rounded-full" style="background-color:#E5484D;"></div>
-                <span>${formatCurrency(totalOverdue)} Overdue</span>
+                <div class="w-2 h-2 rounded-full" style="background-color: #ef4444;"></div>
+                <span class="font-medium">${formatCurrency(totalOverdue)} Overdue</span>
               </div>
             ` : ''}
           </div>
@@ -351,8 +342,8 @@ function renderGroupedBills(occurrences) {
       ${groups.map(group => `
         <div class="space-y-3">
           <div class="flex items-center justify-between px-1 border-b border-surface-alt/40 pb-2">
-            <h3 class="text-label uppercase tracking-wider font-bold text-accent-purple flex items-center space-x-2">
-              <svg class="w-4 h-4 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h3 class="text-label uppercase tracking-wider font-bold flex items-center space-x-2" style="color: #16a34a ;">
+              <svg class="w-4 h-4" style="color: #16a34a ;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
               <span>${group.label}</span>
@@ -391,14 +382,14 @@ function showConfirmModal({ billName, isPaid, onConfirm }) {
     btnConfirm.textContent = 'Mark Unpaid';
     btnConfirm.style.background = '#ff4c4c';
   } else {
-    icon.style.background = 'rgba(167,139,250,0.15)';
-    icon.style.color = '#a78bfa';
+    icon.style.background = 'rgba(22, 163, 74, 0.18)';
+    icon.style.color = '#16a34a ';
     icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
     title.textContent = 'Mark as Paid?';
     subtitle.textContent = billName;
     message.textContent = `This will mark "${billName}" as paid and remove it from your unpaid balance.`;
     btnConfirm.textContent = 'Mark Paid';
-    btnConfirm.style.background = '#a78bfa';
+    btnConfirm.style.background = '#16a34a ';
   }
 
   // Show with slide-up animation — double rAF ensures the browser

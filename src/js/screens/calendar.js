@@ -62,11 +62,14 @@ export async function renderCalendarScreen(container, params = {}) {
 
       <!-- Hero Cards Row (SAMPLE_UI Style) -->
       <div class="grid grid-cols-2 gap-3">
-        <!-- Card 1: Total Due (Purple Accent) -->
-        <div class="rounded-3xl p-4 bg-accent-green text-base font-medium space-y-1">
-          <div class="text-caption text-white/80 font-medium uppercase tracking-wider">Total Due</div>
-          <div class="text-card-amount font-bold text-white">${formatCurrency(totalDue)}</div>
-          <div class="text-caption text-white/70">${monthOccurrences.length} total bills</div>
+        <!-- Card 1: Total Due (Green Card Style) -->
+        <div class="rounded-3xl p-4 text-base font-medium space-y-1 relative overflow-hidden" style="background-color: #15803d; border: 1px solid #16a34a;">
+          <div class="absolute -right-6 -top-4 w-28 h-28 rounded-full" style="background: rgba(74, 222, 128, 0.08); pointer-events: none;"></div>
+          <div class="relative z-10">
+            <div class="text-caption text-white/80 font-medium uppercase tracking-wider">Total Due</div>
+            <div class="text-card-amount font-bold text-white">${formatCurrency(totalDue)}</div>
+            <div class="text-caption text-white/70">${monthOccurrences.length} total bills</div>
+          </div>
         </div>
 
         <!-- Card 2: Remaining / Overdue (Red/Dark Accent) -->
