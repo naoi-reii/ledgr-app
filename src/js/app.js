@@ -78,4 +78,8 @@ async function initApp() {
 }
 
 // Boot application when DOM is ready
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

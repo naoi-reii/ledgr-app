@@ -1,4 +1,5 @@
 import initSqlJs from 'sql.js';
+import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
 let db = null;
 const STORAGE_KEY = 'ledgr_sqlite_db';
@@ -34,14 +35,19 @@ export async function initDB() {
 
   try {
     const SQL = await initSqlJs({
-      locateFile: file => `/assets/${file}`
+      locateFile: () => sqlWasmUrl
     });
 
     // Try loading persisted DB array buffer from localStorage
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
-      const uInt8Array = new Uint8Array(JSON.parse(savedData));
-      db = new SQL.Database(uInt8Array);
+      try {
+        const uInt8Array = new Uint8Array(JSON.parse(savedData));
+        db = new SQL.Database(uInt8Array);
+      } catch (e) {
+        console.warn("Could not parse saved database, reinitializing fresh database...", e);
+        db = new SQL.Database();
+      }
     } else {
       db = new SQL.Database();
     }
@@ -84,9 +90,14 @@ export function run(sql, params = []) {
  * Get last inserted row ID
  */
 export function getLastInsertRowId() {
-  const res = db.exec("SELECT last_insert_rowid() as id;");
-  if (res.length > 0 && res[0].values.length > 0) {
-    return res[0].values[0][0];
+  try {
+    const res = db.exec("SELECT last_insert_rowid() as id;");
+    if (res.length > 0 && res[0].values.length > 0) {
+      const val = res[0].values[0][0];
+      return typeof val === 'bigint' ? Number(val) : val;
+    }
+  } catch (e) {
+    console.error("Error getting last insert rowid:", e);
   }
   return null;
 }

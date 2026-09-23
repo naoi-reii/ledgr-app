@@ -52,17 +52,32 @@ export function createBill(bill) {
     ]
   );
 
-  const newBillId = res.lastInsertRowid;
-  const newBill = selectOne(`SELECT * FROM bills WHERE id = ?`, [newBillId]);
-  
-  generateOccurrences(newBill);
-  return newBill;
+  let newBillId = res ? res.lastInsertRowid : null;
+  if (!newBillId) {
+    const maxRow = selectOne(`SELECT MAX(id) as id FROM bills`);
+    newBillId = maxRow ? maxRow.id : 1;
+  }
+
+  const createdBill = selectOne(`SELECT * FROM bills WHERE id = ?`, [newBillId]) || {
+    id: newBillId,
+    name: bill.name,
+    category: bill.category,
+    default_amount: parseFloat(bill.default_amount),
+    due_day: dueDay,
+    start_date: bill.start_date,
+    recurrence_months: recurrenceMonths,
+    created_at: createdAt
+  };
+
+  generateOccurrences(createdBill);
+  return createdBill;
 }
 
 /**
  * Generate occurrences for a bill based on recurrence rule
  */
 export function generateOccurrences(bill) {
+  if (!bill || !bill.start_date) return;
   const startObj = new Date(bill.start_date);
   const startYear = startObj.getFullYear();
   const startMonth = startObj.getMonth() + 1; // 1-12
