@@ -67,23 +67,23 @@ export async function renderHomeScreen(container, params = {}) {
         <div class="absolute -right-12 -top-6 w-56 h-56 rounded-full" style="background: rgba(74, 222, 128, 0.08); pointer-events: none;"></div>
         <div class="absolute -right-4 -top-2 w-40 h-40 rounded-full" style="background: rgba(74, 222, 128, 0.05); pointer-events: none;"></div>
         <!-- Content -->
-        <div class="relative z-10 p-5">
-          <div class="flex items-center justify-between mb-2">
+        <div class="relative z-10 p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
             <div class="flex items-center space-x-2">
-              <svg class="w-3.5 h-3.5" style="color:white ;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <span class="text-label uppercase tracking-wider font-semibold" style="color: white;">Total Unpaid Balance</span>
+              <svg class="w-3.5 h-3.5 shrink-0" style="color:white ;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="text-label uppercase tracking-wider font-semibold truncate" style="color: white;">Total Unpaid Balance</span>
             </div>
-            ${overdueCount > 0 ? `<span class="px-2.5 py-0.5 rounded-full text-tag uppercase font-bold" style="background: #ef4444; color: white;">${overdueCount} Overdue</span>` : ''}
+            ${overdueCount > 0 ? `<span class="px-2.5 py-0.5 rounded-full text-tag uppercase font-bold shrink-0" style="background: #ef4444; color: white;">${overdueCount} Overdue</span>` : ''}
           </div>
-          <div class="text-hero-amount text-text-primary mb-4" style="font-size:32px; line-height:1.1;">${formatCurrency(totalUnpaid)}</div>
-          <div class="flex items-center space-x-4 text-caption pt-3" style="border-top: 1px solid rgba(74,222,128,0.2);">
-            <div class="flex items-center space-x-1.5" style="color: white;">
-              <div class="w-2 h-2 rounded-full" style="background-color: #0bd153ff ;"></div>
+          <div class="text-hero-amount text-text-primary mb-4 truncate" style="font-size: clamp(24px, 7vw, 32px); line-height:1.1;">${formatCurrency(totalUnpaid)}</div>
+          <div class="flex items-center space-x-3 sm:space-x-4 text-caption pt-3 flex-wrap gap-y-1" style="border-top: 1px solid rgba(74,222,128,0.2);">
+            <div class="flex items-center space-x-1.5 shrink-0" style="color: white;">
+              <div class="w-2 h-2 rounded-full shrink-0" style="background-color: #0bd153ff ;"></div>
               <span>${occurrences.filter(o => !o.is_paid).length} Bills Pending</span>
             </div>
             ${totalOverdue > 0 ? `
-              <div class="flex items-center space-x-1.5" style="color: white;">
-                <div class="w-2 h-2 rounded-full" style="background-color: #ef4444;"></div>
+              <div class="flex items-center space-x-1.5 shrink-0" style="color: white;">
+                <div class="w-2 h-2 rounded-full shrink-0" style="background-color: #ef4444;"></div>
                 <span class="font-medium">${formatCurrency(totalOverdue)} Overdue</span>
               </div>
             ` : ''}
@@ -279,36 +279,36 @@ function renderBillRow(occ) {
   else if (isPaid) amountColorClass = 'text-text-secondary line-through';
 
   return `
-    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-4 flex items-center justify-between hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20 shadow-sm active:scale-[0.99]">
-      <div class="flex items-center space-x-3.5">
+    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-3.5 sm:p-4 flex items-center justify-between gap-2 hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20 shadow-sm active:scale-[0.99]">
+      <div class="flex items-center space-x-3 min-w-0 flex-1">
         <!-- Category Icon Chip (SAMPLE_UI style) -->
-        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
-          ${getCategoryIconSvg(cat.icon, "w-6 h-6")}
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
+          ${getCategoryIconSvg(cat.icon, "w-5 h-5 sm:w-6 sm:h-6")}
         </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h4 class="text-row-title text-text-primary font-semibold">${occ.name}</h4>
-            ${occ.is_amount_overridden ? `<span class="px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag">Edited</span>` : ''}
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center space-x-1.5 min-w-0">
+            <h4 class="text-row-title text-text-primary font-semibold truncate max-w-full">${occ.name}</h4>
+            ${occ.is_amount_overridden ? `<span class="px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag shrink-0">Edited</span>` : ''}
           </div>
-          <div class="flex items-center space-x-2 mt-0.5">
-            <span class="text-caption text-text-secondary">${cat.name}</span>
+          <div class="flex items-center space-x-1.5 mt-0.5 flex-wrap min-w-0">
+            <span class="text-caption text-text-secondary truncate max-w-[90px] sm:max-w-none">${cat.name}</span>
             <span class="text-caption text-text-secondary">•</span>
-            <span class="text-caption ${isOverdue ? 'text-accent-red font-medium' : 'text-text-secondary'}">
+            <span class="text-caption shrink-0 ${isOverdue ? 'text-accent-red font-medium' : 'text-text-secondary'}">
               ${isOverdue ? 'Overdue ' : 'Due '}${formatDateShort(occ.due_date)}
             </span>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
-        <div class="text-right">
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <div class="text-right shrink-0">
           <div class="text-row-amount ${amountColorClass}">${formatCurrency(occ.amount)}</div>
           ${isPaid ? `<span class="text-tag text-accent-purple font-semibold">Paid</span>` : isOverdue ? `<span class="text-tag text-accent-red font-semibold">Overdue</span>` : ''}
         </div>
 
         <!-- Paid Toggle Button -->
-        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" data-name="${occ.name}" class="toggle-paid-btn w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary hover:bg-surface-alt/80'}">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" data-name="${occ.name}" class="toggle-paid-btn w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary hover:bg-surface-alt/80'}">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
           </svg>
         </button>
