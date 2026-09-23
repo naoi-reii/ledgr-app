@@ -73,16 +73,16 @@ export async function renderHomeScreen(container, params = {}) {
               <svg class="w-3.5 h-3.5" style="color:white ;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
               <span class="text-label uppercase tracking-wider font-semibold" style="color: white;">Total Unpaid Balance</span>
             </div>
-            ${overdueCount > 0 ? `<span class="px-2.5 py-0.5 rounded-full text-tag uppercase font-bold" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);">${overdueCount} Overdue</span>` : ''}
+            ${overdueCount > 0 ? `<span class="px-2.5 py-0.5 rounded-full text-tag uppercase font-bold" style="background: #ef4444; color: white;">${overdueCount} Overdue</span>` : ''}
           </div>
           <div class="text-hero-amount text-text-primary mb-4" style="font-size:32px; line-height:1.1;">${formatCurrency(totalUnpaid)}</div>
           <div class="flex items-center space-x-4 text-caption pt-3" style="border-top: 1px solid rgba(74,222,128,0.2);">
             <div class="flex items-center space-x-1.5" style="color: white;">
-              <div class="w-2 h-2 rounded-full" style="background-color: white ;"></div>
+              <div class="w-2 h-2 rounded-full" style="background-color: #0bd153ff ;"></div>
               <span>${occurrences.filter(o => !o.is_paid).length} Bills Pending</span>
             </div>
             ${totalOverdue > 0 ? `
-              <div class="flex items-center space-x-1.5" style="color: #fca5a5;">
+              <div class="flex items-center space-x-1.5" style="color: white;">
                 <div class="w-2 h-2 rounded-full" style="background-color: #ef4444;"></div>
                 <span class="font-medium">${formatCurrency(totalOverdue)} Overdue</span>
               </div>

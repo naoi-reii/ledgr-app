@@ -74,7 +74,7 @@ export async function renderBillDetailScreen(container, params = {}) {
             ${occurrence.is_amount_overridden ? `<span class="px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag">Edited</span>` : ''}
           </div>
           <div class="flex items-center space-x-1 pt-1">
-            <span class="text-hero-amount text-accent-purple font-extrabold">₱</span>
+            <span class="text-hero-amount text-text-primary font-extrabold">₱</span>
             <span class="text-hero-amount font-extrabold text-text-primary">${occurrence.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
           </div>
           <p class="text-caption text-text-secondary/70">Tap ✏️ above to edit this month only.</p>
