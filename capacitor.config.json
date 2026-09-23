@@ -1,0 +1,6 @@
+{
+  "appId": "com.ledgr.app",
+  "appName": "Ledgr",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
