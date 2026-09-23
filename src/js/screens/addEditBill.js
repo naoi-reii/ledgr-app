@@ -133,7 +133,7 @@ export async function renderAddEditBillScreen(container, options = { mode: 'add'
         <div class="pt-4">
           <button 
             type="submit" 
-            class="w-full py-4 rounded-2xl bg-accent-purple hover:bg-accent-purple/90 text-text-primary font-semibold text-button shadow-lg shadow-accent-purple/30 active:scale-[0.99] transition-all flex items-center justify-center space-x-2"
+            class="w-full py-4 rounded-2xl bg-accent-purple hover:bg-accent-purple/90 text-text-primary font-semibold text-button active:scale-[0.99] transition-all flex items-center justify-center space-x-2"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>

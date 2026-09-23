@@ -20,6 +20,26 @@ export async function renderHomeScreen(container, params = {}) {
   const overdueCount = occurrences.filter(o => o.is_overdue).length;
 
   container.innerHTML = `
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 flex items-end justify-center hidden" style="background: rgba(0,0,0,0.65);">
+      <div id="confirm-modal-sheet" class="w-full max-w-md bg-surface rounded-t-3xl p-6 space-y-4 shadow-2xl border-t border-surface-alt/40"
+           style="transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);">
+        <div class="w-10 h-1 rounded-full bg-surface-alt mx-auto mb-2"></div>
+        <div class="flex items-center space-x-3">
+          <div id="confirm-modal-icon" class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"></div>
+          <div>
+            <h3 id="confirm-modal-title" class="text-section-header text-text-primary font-semibold"></h3>
+            <p id="confirm-modal-subtitle" class="text-caption text-text-secondary mt-0.5"></p>
+          </div>
+        </div>
+        <p id="confirm-modal-message" class="text-body text-text-secondary rounded-xl bg-surface-alt/40 px-4 py-3"></p>
+        <div class="flex space-x-3 pt-1">
+          <button id="confirm-modal-cancel" class="flex-1 py-3 rounded-2xl bg-surface-alt text-text-secondary text-button font-semibold hover:bg-surface-alt/80 active:scale-95 transition-all">Cancel</button>
+          <button id="confirm-modal-confirm" class="flex-1 py-3 rounded-2xl text-text-primary text-button font-semibold active:scale-95 transition-all"></button>
+        </div>
+      </div>
+    </div>
+
     <div class="space-y-5 animate-fade-in pb-6">
       <!-- App Top Bar Header -->
       <div class="flex items-center justify-between pt-2">
@@ -36,8 +56,7 @@ export async function renderHomeScreen(container, params = {}) {
       </div>
 
       <!-- Hero Summary Card (SAMPLE_UI style) -->
-      <div class="rounded-3xl p-5 bg-gradient-to-br ${totalOverdue > 0 ? 'from-[#321D1E] to-surface border border-accent-red/30' : 'from-[#24203D] to-surface border border-accent-purple/30'} relative overflow-hidden shadow-xl">
-        <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full ${totalOverdue > 0 ? 'bg-accent-red/10' : 'bg-accent-purple/10'} blur-2xl"></div>
+      <div class="rounded-3xl p-5 bg-surface ${totalOverdue > 0 ? 'border border-accent-red/40' : 'border border-accent-purple/30'} relative overflow-hidden">
         <div class="flex items-center justify-between mb-2">
           <span class="text-label text-text-secondary uppercase tracking-wider font-semibold">Total Unpaid Balance</span>
           ${overdueCount > 0 ? `<span class="px-2 py-0.5 rounded-full bg-accent-red text-text-primary text-tag uppercase font-bold animate-pulse">${overdueCount} Overdue</span>` : ''}
@@ -78,7 +97,7 @@ export async function renderHomeScreen(container, params = {}) {
       </div>
 
       <!-- Bills List -->
-      <div class="space-y-3">
+      <div class="space-y-6">
         ${occurrences.length === 0 ? `
           <div class="rounded-2xl bg-surface p-8 text-center space-y-2 border border-surface-alt/30">
             <div class="w-12 h-12 rounded-full bg-surface-alt flex items-center justify-center mx-auto text-text-secondary">
@@ -89,7 +108,7 @@ export async function renderHomeScreen(container, params = {}) {
             <h3 class="text-section-header text-text-primary">No bills found</h3>
             <p class="text-caption text-text-secondary">Add a new bill or change your filter selection.</p>
           </div>
-        ` : occurrences.map(occ => renderBillRow(occ)).join('')}
+        ` : renderGroupedBills(occurrences)}
       </div>
     </div>
   `;
@@ -121,14 +140,21 @@ export async function renderHomeScreen(container, params = {}) {
     });
   });
 
-  // Toggle Paid Checkbox Handlers
+  // Toggle Paid Checkbox Handlers — show confirmation modal first
   container.querySelectorAll('.toggle-paid-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const occurrenceId = btn.getAttribute('data-id');
       const isPaid = btn.getAttribute('data-paid') === 'true';
-      setPaid(occurrenceId, !isPaid);
-      renderHomeScreen(container);
+      const billName = btn.getAttribute('data-name');
+      showConfirmModal({
+        billName,
+        isPaid,
+        onConfirm: () => {
+          setPaid(occurrenceId, !isPaid);
+          renderHomeScreen(container);
+        },
+      });
     });
   });
 }
@@ -136,7 +162,7 @@ export async function renderHomeScreen(container, params = {}) {
 function renderFilterChip(id, label, activeId) {
   const isActive = id === activeId;
   return `
-    <button data-status-filter="${id}" class="px-3.5 py-1.5 rounded-full text-label font-medium transition-all shrink-0 ${isActive ? 'bg-accent-purple text-text-primary font-semibold shadow-md shadow-accent-purple/20' : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-alt'}">
+    <button data-status-filter="${id}" class="px-3.5 py-1.5 rounded-full text-label font-medium transition-all shrink-0 ${isActive ? 'bg-accent-purple text-text-primary font-semibold' : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-alt'}">
       ${label}
     </button>
   `;
@@ -180,7 +206,7 @@ function renderBillRow(occ) {
         </div>
 
         <!-- Paid Toggle Button -->
-        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" class="toggle-paid-btn w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary hover:bg-surface-alt/80'}">
+        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" data-name="${occ.name}" class="toggle-paid-btn w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary hover:bg-surface-alt/80'}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
           </svg>
@@ -188,4 +214,108 @@ function renderBillRow(occ) {
       </div>
     </div>
   `;
+}
+
+function renderGroupedBills(occurrences) {
+  const groups = [];
+  const map = new Map();
+
+  occurrences.forEach(occ => {
+    if (!occ.due_date) return;
+    const [y, m] = occ.due_date.split('-').map(Number);
+    const key = `${y}-${m}`;
+    if (!map.has(key)) {
+      const dateObj = new Date(y, m - 1, 1);
+      const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
+      const currentYear = new Date().getFullYear();
+      const label = y === currentYear ? monthName : `${monthName} ${y}`;
+      const group = { label, items: [] };
+      map.set(key, group);
+      groups.push(group);
+    }
+    map.get(key).items.push(occ);
+  });
+
+  return `
+    <div class="space-y-6">
+      ${groups.map(group => `
+        <div class="space-y-3">
+          <div class="flex items-center justify-between px-1 border-b border-surface-alt/40 pb-2">
+            <h3 class="text-label uppercase tracking-wider font-bold text-accent-purple flex items-center space-x-2">
+              <svg class="w-4 h-4 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span>${group.label}</span>
+            </h3>
+            <span class="text-caption text-text-secondary font-medium">${group.items.length} ${group.items.length === 1 ? 'bill' : 'bills'}</span>
+          </div>
+          <div class="space-y-3">
+            ${group.items.map(occ => renderBillRow(occ)).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+/**
+ * Show a bottom-sheet confirmation modal before toggling paid status.
+ */
+function showConfirmModal({ billName, isPaid, onConfirm }) {
+  const modal      = document.getElementById('confirm-modal');
+  const sheet      = document.getElementById('confirm-modal-sheet');
+  const icon       = document.getElementById('confirm-modal-icon');
+  const title      = document.getElementById('confirm-modal-title');
+  const subtitle   = document.getElementById('confirm-modal-subtitle');
+  const message    = document.getElementById('confirm-modal-message');
+  const btnConfirm = document.getElementById('confirm-modal-confirm');
+  const btnCancel  = document.getElementById('confirm-modal-cancel');
+
+  if (isPaid) {
+    icon.style.background = 'rgba(255,76,76,0.15)';
+    icon.style.color = '#ff4c4c';
+    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>`;
+    title.textContent = 'Mark as Unpaid?';
+    subtitle.textContent = billName;
+    message.textContent = `This will mark "${billName}" as unpaid and restore it to your pending balance.`;
+    btnConfirm.textContent = 'Mark Unpaid';
+    btnConfirm.style.background = '#ff4c4c';
+  } else {
+    icon.style.background = 'rgba(167,139,250,0.15)';
+    icon.style.color = '#a78bfa';
+    icon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
+    title.textContent = 'Mark as Paid?';
+    subtitle.textContent = billName;
+    message.textContent = `This will mark "${billName}" as paid and remove it from your unpaid balance.`;
+    btnConfirm.textContent = 'Mark Paid';
+    btnConfirm.style.background = '#a78bfa';
+  }
+
+  // Show with slide-up animation — double rAF ensures the browser
+  // has painted translateY(100%) before the transition starts.
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      sheet.style.transform = 'translateY(0)';
+    });
+  });
+
+  function closeModal() {
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => modal.classList.add('hidden'), 300);
+  }
+
+  const handleConfirm  = () => { closeModal(); onConfirm(); cleanup(); };
+  const handleCancel   = () => { closeModal(); cleanup(); };
+  const handleBackdrop = (e) => { if (e.target === modal) { closeModal(); cleanup(); } };
+
+  function cleanup() {
+    btnConfirm.removeEventListener('click', handleConfirm);
+    btnCancel.removeEventListener('click', handleCancel);
+    modal.removeEventListener('click', handleBackdrop);
+  }
+
+  btnConfirm.addEventListener('click', handleConfirm);
+  btnCancel.addEventListener('click', handleCancel);
+  modal.addEventListener('click', handleBackdrop);
 }

@@ -63,7 +63,7 @@ export async function renderCalendarScreen(container, params = {}) {
       <!-- Hero Cards Row (SAMPLE_UI Style) -->
       <div class="grid grid-cols-2 gap-3">
         <!-- Card 1: Total Due (Purple Accent) -->
-        <div class="rounded-3xl p-4 bg-accent-purple text-text-primary shadow-lg shadow-accent-purple/20 space-y-1">
+        <div class="rounded-3xl p-4 bg-accent-green text-base font-medium space-y-1">
           <div class="text-caption text-white/80 font-medium uppercase tracking-wider">Total Due</div>
           <div class="text-card-amount font-bold text-white">${formatCurrency(totalDue)}</div>
           <div class="text-caption text-white/70">${monthOccurrences.length} total bills</div>
@@ -192,7 +192,7 @@ function renderCalendarDaysGrid(year, month, monthOccurrences, selectedDateStr) 
     }
 
     html += `
-      <button data-cal-date="${dayStr}" class="h-11 rounded-xl flex flex-col items-center justify-center relative transition-all ${isSelected ? 'bg-accent-purple text-text-primary font-bold shadow-md shadow-accent-purple/30 ring-2 ring-accent-purple' : isToday ? 'bg-surface-alt text-accent-purple font-bold border border-accent-purple/40' : 'bg-surface hover:bg-surface-alt text-text-primary'}">
+      <button data-cal-date="${dayStr}" class="h-11 rounded-xl flex flex-col items-center justify-center relative transition-all ${isSelected ? 'bg-accent-purple text-text-primary font-bold' : isToday ? 'bg-surface-alt text-accent-purple font-bold border border-accent-purple/40' : 'bg-surface hover:bg-surface-alt text-text-primary'}">
         <span class="text-body">${d}</span>
         ${dayOccurrences.length > 0 ? `
           <div class="flex items-center space-x-0.5 mt-0.5">

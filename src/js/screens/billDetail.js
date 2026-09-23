@@ -43,7 +43,7 @@ export async function renderBillDetailScreen(container, params = {}) {
       </div>
 
       <!-- Main Feature Card (SAMPLE_UI Style) -->
-      <div class="rounded-3xl bg-surface p-6 border border-surface-alt/40 space-y-6 shadow-xl relative overflow-hidden">
+      <div class="rounded-3xl bg-surface p-6 border border-surface-alt/40 space-y-6 relative overflow-hidden">
         <div class="flex items-center justify-between">
           <!-- Category Chip -->
           <div class="flex items-center space-x-3">
@@ -120,7 +120,7 @@ export async function renderBillDetailScreen(container, params = {}) {
         <!-- Mark Paid Action Button -->
         <button 
           id="detail-toggle-paid-btn" 
-          class="w-full py-4 rounded-2xl ${isPaid ? 'bg-surface-alt text-text-secondary hover:text-text-primary' : 'bg-accent-purple text-text-primary shadow-lg shadow-accent-purple/30'} font-semibold text-button transition-all flex items-center justify-center space-x-2"
+          class="w-full py-4 rounded-2xl ${isPaid ? 'bg-surface-alt text-text-secondary hover:text-text-primary' : 'bg-accent-purple text-text-primary'} font-semibold text-button transition-all flex items-center justify-center space-x-2"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
@@ -188,7 +188,7 @@ function showDeleteConfirmationModal(occurrence, container) {
           <button id="modal-delete-single" class="w-full py-3 rounded-2xl bg-surface-alt text-text-primary text-button font-semibold hover:bg-surface-alt/80 transition-all">
             Delete Only This Month
           </button>
-          <button id="modal-delete-series" class="w-full py-3 rounded-2xl bg-accent-red text-text-primary text-button font-semibold hover:bg-accent-red/90 transition-all shadow-md shadow-accent-red/20">
+          <button id="modal-delete-series" class="w-full py-3 rounded-2xl bg-accent-red text-text-primary text-button font-semibold hover:bg-accent-red/90 transition-all">
             Delete Entire Series
           </button>
           <button id="modal-cancel" class="w-full py-3 rounded-2xl bg-transparent text-text-secondary text-button hover:text-text-primary transition-all">
