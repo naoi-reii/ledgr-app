@@ -3,31 +3,35 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-base text-text-primary font-sans antialiased min-h-screen select-none;
     background-color: #121212;
     color: #FFFFFF;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Custom scrollbar styling for slick dark appearance */
+/* Hide scrollbars completely for clean native app experience */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
 }
 
-::-webkit-scrollbar-thumb {
-  background: #2A2A2C;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #9A9A9E;
+/* Smooth scrolling and native touch scroll optimization */
+#app-view {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 /* Mobile shell frame container for desktop viewing */

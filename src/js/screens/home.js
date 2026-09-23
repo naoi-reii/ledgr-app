@@ -279,31 +279,36 @@ function renderBillRow(occ) {
   else if (isPaid) amountColorClass = 'text-text-secondary line-through';
 
   return `
-    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-3.5 sm:p-4 flex items-center justify-between gap-2 hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20 shadow-sm active:scale-[0.99]">
-      <div class="flex items-center space-x-3 min-w-0 flex-1">
-        <!-- Category Icon Chip (SAMPLE_UI style) -->
-        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
+    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-3 sm:p-4 flex items-center justify-between gap-2.5 hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20 shadow-sm active:scale-[0.99]">
+      <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
+        <!-- Category Icon Chip -->
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
           ${getCategoryIconSvg(cat.icon, "w-5 h-5 sm:w-6 sm:h-6")}
         </div>
+        
+        <!-- Main Text Column (Guaranteed 2 lines max, no awkward wrapping) -->
         <div class="min-w-0 flex-1">
           <div class="flex items-center space-x-1.5 min-w-0">
-            <h4 class="text-row-title text-text-primary font-semibold truncate max-w-full">${occ.name}</h4>
+            <h4 class="text-row-title text-text-primary font-semibold truncate leading-snug">${occ.name}</h4>
             ${occ.is_amount_overridden ? `<span class="px-1.5 py-0.5 rounded bg-surface-alt text-text-secondary text-tag shrink-0">Edited</span>` : ''}
           </div>
-          <div class="flex items-center space-x-1.5 mt-0.5 flex-wrap min-w-0">
-            <span class="text-caption text-text-secondary truncate max-w-[90px] sm:max-w-none">${cat.name}</span>
-            <span class="text-caption text-text-secondary">•</span>
-            <span class="text-caption shrink-0 ${isOverdue ? 'text-accent-red font-medium' : 'text-text-secondary'}">
+          <div class="flex items-center space-x-1 mt-0.5 min-w-0 text-caption text-text-secondary overflow-hidden truncate leading-snug">
+            <span class="truncate shrink-0 max-w-[80px] sm:max-w-none">${cat.name}</span>
+            <span class="shrink-0">•</span>
+            <span class="truncate shrink-0 ${isOverdue ? 'text-accent-red font-medium' : ''}">
               ${isOverdue ? 'Overdue ' : 'Due '}${formatDateShort(occ.due_date)}
             </span>
           </div>
         </div>
       </div>
 
+      <!-- Right Column: Amount + Status + Action Button -->
       <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
         <div class="text-right shrink-0">
-          <div class="text-row-amount ${amountColorClass}">${formatCurrency(occ.amount)}</div>
-          ${isPaid ? `<span class="text-tag text-accent-purple font-semibold">Paid</span>` : isOverdue ? `<span class="text-tag text-accent-red font-semibold">Overdue</span>` : ''}
+          <div class="text-row-amount leading-snug ${amountColorClass}">${formatCurrency(occ.amount)}</div>
+          <div class="text-tag leading-snug mt-0.5">
+            ${isPaid ? `<span class="text-accent-purple font-semibold">Paid</span>` : isOverdue ? `<span class="text-accent-red font-semibold">Overdue</span>` : `<span class="invisible">&nbsp;</span>`}
+          </div>
         </div>
 
         <!-- Paid Toggle Button -->

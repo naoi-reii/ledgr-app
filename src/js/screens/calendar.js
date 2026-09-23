@@ -43,9 +43,9 @@ export async function renderCalendarScreen(container, params = {}) {
   container.innerHTML = `
     <div class="space-y-5 animate-fade-in pb-6">
       <!-- Top Title Bar -->
-      <div class="flex items-center justify-between pt-2">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 gap-4 sm:gap-0">
         <h1 class="text-screen-title font-bold text-text-primary">Calendar</h1>
-        <div class="flex items-center space-x-1 bg-surface rounded-xl p-1 border border-surface-alt/40">
+        <div class="flex items-center space-x-1 bg-surface rounded-xl p-1 border border-surface-alt/40 w-full sm:w-auto justify-between sm:justify-start">
           <button id="cal-prev-month" class="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-alt transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -61,7 +61,7 @@ export async function renderCalendarScreen(container, params = {}) {
       </div>
 
       <!-- Hero Cards Row (SAMPLE_UI Style) -->
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <!-- Card 1: Total Due (Green Card Style) -->
         <div class="rounded-3xl p-4 text-base font-medium space-y-1 relative overflow-hidden" style="background-color: #15803d; border: 1px solid #16a34a;">
           <div class="absolute -right-6 -top-4 w-28 h-28 rounded-full" style="background: rgba(74, 222, 128, 0.08); pointer-events: none;"></div>
@@ -215,25 +215,27 @@ function renderCalendarBillRow(occ) {
   const isOverdue = occ.is_overdue;
 
   return `
-    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-3.5 flex items-center justify-between hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20">
-      <div class="flex items-center space-x-3">
+    <div data-occurrence-id="${occ.occurrence_id}" class="rounded-2xl bg-surface p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-surface-alt/70 transition-all cursor-pointer border border-surface-alt/20">
+      <div class="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
         <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background-color: ${cat.bgColor}; color: ${cat.color};">
           ${getCategoryIconSvg(cat.icon, "w-5 h-5")}
         </div>
-        <div>
-          <h4 class="text-row-title text-text-primary font-semibold">${occ.name}</h4>
-          <span class="text-caption text-text-secondary">${cat.name}</span>
+        <div class="min-w-0 flex-1">
+          <h4 class="text-row-title text-text-primary font-semibold truncate leading-snug">${occ.name}</h4>
+          <span class="text-caption text-text-secondary truncate block leading-snug mt-0.5">${cat.name}</span>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
-        <div class="text-right">
-          <div class="text-row-amount ${isOverdue ? 'text-accent-red font-bold' : isPaid ? 'text-text-secondary line-through' : 'text-text-primary'}">
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <div class="text-right shrink-0">
+          <div class="text-row-amount leading-snug ${isOverdue ? 'text-accent-red font-bold' : isPaid ? 'text-text-secondary line-through' : 'text-text-primary'}">
             ${formatCurrency(occ.amount)}
           </div>
-          ${isPaid ? `<span class="text-tag text-accent-purple">Paid</span>` : isOverdue ? `<span class="text-tag text-accent-red">Overdue</span>` : ''}
+          <div class="text-tag leading-snug mt-0.5">
+            ${isPaid ? `<span class="text-accent-purple font-semibold">Paid</span>` : isOverdue ? `<span class="text-accent-red font-semibold">Overdue</span>` : `<span class="invisible">&nbsp;</span>`}
+          </div>
         </div>
-        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" class="toggle-paid-btn w-8 h-8 rounded-lg flex items-center justify-center transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary'}">
+        <button data-id="${occ.occurrence_id}" data-paid="${isPaid}" class="toggle-paid-btn w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all ${isPaid ? 'bg-accent-purple text-text-primary' : 'bg-surface-alt text-text-secondary hover:text-text-primary'}">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
           </svg>
